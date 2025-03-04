@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"server/database"
+	"server/model"
 	"strconv"
 	"time"
 )
@@ -28,19 +30,24 @@ func main() {
 }
 
 func getCurrentDollarRateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	resp, err := processRequest(w)
+	resp, err := handleRequest(w)
 	if err != nil {
 		// error to process request
 		return
 	}
 
+	err = saveToDatabase(w, resp.CurrentBid)
+	if err != nil {
+		// error to save bid at database
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(*resp)
 }
 
-func processRequest(w http.ResponseWriter) (*ClientResponse, error) {
+func handleRequest(w http.ResponseWriter) (*ClientResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 
@@ -77,4 +84,32 @@ func processRequest(w http.ResponseWriter) (*ClientResponse, error) {
 	return &ClientResponse{
 		CurrentBid: bidFloat,
 	}, nil
+}
+
+func saveToDatabase(w http.ResponseWriter, currentBid float64) error {
+	db, err := database.Connect("app.db")
+	if err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error to connect at database", http.StatusInternalServerError)
+		return err
+	}
+	defer db.Close()
+
+	if err := database.Migrate(db); err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error to migrate initial database schema", http.StatusInternalServerError)
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+	dolarQuote := model.NewDolarQuote(currentBid)
+	err = dolarQuote.CreateDolarQuote(ctx, db)
+	if err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error to create dolar quote in database", http.StatusInternalServerError)
+		return err
+	}
+
+	return nil
 }

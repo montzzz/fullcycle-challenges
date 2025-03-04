@@ -32,7 +32,7 @@ func main() {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		log.Printf("Status code received from server.go is not acceptable (why not 200?): %v", res.StatusCode)
+		log.Printf("Status code received from server.go is not acceptable (why not 200?) -> status_code: %v", res.StatusCode)
 		panic("Status code received from server.go is not acceptable (has an error?)")
 	}
 
@@ -48,7 +48,7 @@ func logBidToFile(bid float64) {
 	currentTime := time.Now().Format("02/01/2006 15:04:05")
 
 	// Criando ou abrindo o arquivo .txt no modo append
-	file, err := os.OpenFile("bids.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("cotacao.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Error to open bids file: %v", err)
 	}
@@ -59,5 +59,5 @@ func logBidToFile(bid float64) {
 		log.Fatalf("Error to write in bids file: %v", err)
 	}
 
-	fmt.Printf("Registered bid: %.2f in %s\n", bid, currentTime)
+	fmt.Printf("Registered bid: %.4f in %s\n", bid, currentTime)
 }
