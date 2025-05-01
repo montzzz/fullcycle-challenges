@@ -1,4 +1,4 @@
-# Desafio Go - API de Consulta de CEP
+# Desafio Go - API de Consulta CEP
 
 Este projeto é uma aplicação em Go que realiza a busca de informações de um CEP utilizando **duas APIs públicas** simultaneamente:
 
@@ -28,10 +28,10 @@ As duas requisições serão feitas simultaneamente para as seguintes APIs:
 
 ## Funcionalidade
 
-- Recebe um CEP como argumento de linha de comando
-- Consulta os serviços BrasilAPI e ViaCEP em paralelo
-- Retorna a primeira resposta bem-sucedida
-- Timeout automático de 1 segundo para evitar travamentos
+- Recebe um CEP como argumento de linha de comando;
+- Consulta os serviços BrasilAPI e ViaCEP em paralelo;
+- Retorna a primeira resposta bem-sucedida;
+- Timeout automático de 1 segundo para evitar travamentos.
 
 ---
 
