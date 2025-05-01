@@ -38,7 +38,7 @@ As duas requisições serão feitas simultaneamente para as seguintes APIs:
 #### Exemplo de uso
 
 ```bash
-go run challenge-cep.go 89120000
+go run challenge/challenge-cep.go 89120000
 ```
 
 #### Exemplo de resposta
