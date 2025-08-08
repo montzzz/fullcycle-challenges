@@ -55,14 +55,20 @@ func (r *RedisStrategy) IsBlocked(key string) (bool, error) {
 }
 
 func (r *RedisStrategy) IncrementRequestCount(key string, limit int, window time.Duration) (bool, error) {
-	pipe := r.client.TxPipeline()
-	pipe.Incr(r.ctx, "rate:"+key)
-	pipe.Expire(r.ctx, "rate:"+key, window)
-	res, err := pipe.Exec(r.ctx)
+	fullKey := "rate:" + key
+
+	count, err := r.client.Incr(r.ctx, fullKey).Result()
 	if err != nil {
 		return false, err
 	}
-	count := res[0].(*redis.IntCmd).Val()
+
+	if count == 1 {
+		_, err := r.client.Expire(r.ctx, fullKey, window).Result()
+		if err != nil {
+			return false, err
+		}
+	}
+
 	return int(count) <= limit, nil
 }
 

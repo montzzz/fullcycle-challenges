@@ -3,7 +3,6 @@ package limiter
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/montzzzzz/challenges/rate-limiter/internal/config"
 	"github.com/montzzzzz/challenges/rate-limiter/internal/limiter/strategy"
@@ -48,7 +47,7 @@ func (rl *RateLimiter) Allow(req *http.Request) (bool, error) {
 		return false, err
 	}
 
-	allowed, err := rl.storage.IncrementRequestCount(key, limit, time.Second)
+	allowed, err := rl.storage.IncrementRequestCount(key, limit, rl.cfg.BlockDuration)
 	if err != nil {
 		return false, err
 	}

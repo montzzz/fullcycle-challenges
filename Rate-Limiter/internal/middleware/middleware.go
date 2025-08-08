@@ -11,11 +11,11 @@ func NewRateLimiterMiddleware(rl *limiter.RateLimiter) func(http.Handler) http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ok, err := rl.Allow(r)
 			if err != nil {
-				http.Error(w, "Erro interno", http.StatusInternalServerError)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 			if !ok {
-				http.Error(w, "Rate limit excedido", http.StatusTooManyRequests)
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
 			next.ServeHTTP(w, r)
