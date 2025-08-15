@@ -15,7 +15,7 @@ func NewRateLimiterMiddleware(rl *limiter.RateLimiter) func(http.Handler) http.H
 				return
 			}
 			if !ok {
-				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				http.Error(w, "you have reached the maximum number of requests or actions allowed within a certain time frame", http.StatusTooManyRequests)
 				return
 			}
 			next.ServeHTTP(w, r)
