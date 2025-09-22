@@ -10,6 +10,7 @@ import (
 	"github.com/montzzzzz/challenges/zip-weather/internal/dto"
 	"github.com/montzzzzz/challenges/zip-weather/internal/handler"
 	"github.com/montzzzzz/challenges/zip-weather/internal/test/mock"
+	m "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,16 +26,16 @@ func (s *WeatherHandlerSuite) SetupTest() {
 }
 
 func (s *WeatherHandlerSuite) TestGetWeather_Success() {
-	expectedWeather := domain.NewWeather(10.0)
+	expectedWeather := domain.NewWeather("São Paulo", 10.0)
 
-	s.mockUC.On("Execute", "01001000").Return(expectedWeather, nil)
+	s.mockUC.On("Execute", m.Anything, "01001000").Return(expectedWeather, nil)
 
 	req := httptest.NewRequest("GET", "/weather?cep=01001000", nil)
 	w := httptest.NewRecorder()
 
 	s.handler.GetWeather(w, req)
 
-	s.mockUC.AssertCalled(s.T(), "Execute", "01001000")
+	s.mockUC.AssertCalled(s.T(), "Execute", m.Anything, "01001000")
 
 	s.Equal(http.StatusOK, w.Result().StatusCode)
 
@@ -46,14 +47,14 @@ func (s *WeatherHandlerSuite) TestGetWeather_Success() {
 }
 
 func (s *WeatherHandlerSuite) TestGetWeather_Error() {
-	s.mockUC.On("Execute", "00000000").Return((*domain.Weather)(nil), domain.ErrInvalidZip)
+	s.mockUC.On("Execute", m.Anything, "00000000").Return((*domain.Weather)(nil), domain.ErrInvalidZip)
 
 	req := httptest.NewRequest("GET", "/weather?cep=00000000", nil)
 	w := httptest.NewRecorder()
 
 	s.handler.GetWeather(w, req)
 
-	s.mockUC.AssertCalled(s.T(), "Execute", "00000000")
+	s.mockUC.AssertCalled(s.T(), "Execute", m.Anything, "00000000")
 
 	var resp dto.ErrorResponse
 	json.NewDecoder(w.Body).Decode(&resp)

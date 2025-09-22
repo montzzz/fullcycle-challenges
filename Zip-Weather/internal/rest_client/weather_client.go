@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"context"
 	"fmt"
 
 	"net/url"
@@ -10,7 +11,7 @@ import (
 )
 
 type WeatherClient interface {
-	GetWeather(city, uf string) (*domain.Weather, error)
+	GetWeather(ctx context.Context, city, uf string) (*domain.Weather, error)
 }
 
 type WeatherClientImpl struct {
@@ -25,15 +26,15 @@ func NewWeatherClient(restClient RestClient, apiKey string) *WeatherClientImpl {
 	}
 }
 
-func (c *WeatherClientImpl) GetWeather(city, uf string) (*domain.Weather, error) {
+func (c *WeatherClientImpl) GetWeather(ctx context.Context, city, uf string) (*domain.Weather, error) {
 	url := buildWeatherURL(c.APIKey, city, uf)
 
-	data, err := DoRequest[dto.WeatherAPIResponse](c.RestClient, url)
+	data, err := DoRequest[dto.WeatherAPIResponse](ctx, c.RestClient, url)
 	if err != nil {
 		return nil, err
 	}
 
-	return domain.NewWeather(data.Current.TempC), nil
+	return domain.NewWeather(city, data.Current.TempC), nil
 }
 
 func buildWeatherURL(apiKey, city, uf string) string {

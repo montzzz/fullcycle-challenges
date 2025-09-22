@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/montzzzzz/challenges/zip-weather/internal/domain"
@@ -8,7 +9,7 @@ import (
 )
 
 type ViaCEPClient interface {
-	GetLocation(cep string) (*domain.Location, error)
+	GetLocation(ctx context.Context, cep string) (*domain.Location, error)
 }
 
 type ViaCEPClientImpl struct {
@@ -19,10 +20,10 @@ func NewViaCEPClient(restClient RestClient) *ViaCEPClientImpl {
 	return &ViaCEPClientImpl{RestClient: restClient}
 }
 
-func (c *ViaCEPClientImpl) GetLocation(cep string) (*domain.Location, error) {
+func (c *ViaCEPClientImpl) GetLocation(ctx context.Context, cep string) (*domain.Location, error) {
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
 
-	data, err := DoRequest[dto.ViaCEPResponse](c.RestClient, url)
+	data, err := DoRequest[dto.ViaCEPResponse](ctx, c.RestClient, url)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"regexp"
 	"strings"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type GetWeatherByCep interface {
-	Execute(cep string) (*domain.Weather, error)
+	Execute(ctx context.Context, cep string) (*domain.Weather, error)
 }
 
 type GetWeatherByCEPImpl struct {
@@ -24,7 +25,7 @@ func NewGetWeatherByCEP(viaCEP restclient.ViaCEPClient, weather restclient.Weath
 	}
 }
 
-func (uc *GetWeatherByCEPImpl) Execute(cep string) (*domain.Weather, error) {
+func (uc *GetWeatherByCEPImpl) Execute(ctx context.Context, cep string) (*domain.Weather, error) {
 	cep = strings.ReplaceAll(cep, "-", "")
 
 	matched, _ := regexp.MatchString(`^\d{8}$`, cep)
@@ -32,12 +33,12 @@ func (uc *GetWeatherByCEPImpl) Execute(cep string) (*domain.Weather, error) {
 		return nil, domain.ErrInvalidZip
 	}
 
-	location, err := uc.ViaCEPClient.GetLocation(cep)
+	location, err := uc.ViaCEPClient.GetLocation(ctx, cep)
 	if err != nil {
 		return nil, err
 	}
 
-	weather, err := uc.WeatherClient.GetWeather(location.City, location.UF)
+	weather, err := uc.WeatherClient.GetWeather(ctx, location.City, location.UF)
 	if err != nil {
 		return nil, err
 	}

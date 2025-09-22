@@ -16,7 +16,7 @@ type WeatherHandler struct {
 func (h *WeatherHandler) GetWeather(w http.ResponseWriter, r *http.Request) {
 	cep := r.URL.Query().Get("cep")
 
-	result, err := h.GetWeatherByCEP.Execute(cep)
+	result, err := h.GetWeatherByCEP.Execute(r.Context(), cep)
 	if err != nil {
 		status, msg := utils.MapErrorToStatus(err)
 		w.WriteHeader(status)

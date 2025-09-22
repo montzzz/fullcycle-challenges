@@ -1,16 +1,19 @@
 package restclient
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type RestClient interface {
-	Get(url string) ([]byte, error)
+	Get(ctx context.Context, url string) ([]byte, error)
 }
 
 type HttpRestClient struct {
@@ -22,12 +25,17 @@ func NewHttpRestClient() *HttpRestClient {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	return &HttpRestClient{
-		HTTP: &http.Client{Transport: tr},
+		HTTP: &http.Client{Transport: otelhttp.NewTransport(tr)},
 	}
 }
 
-func (c *HttpRestClient) Get(url string) ([]byte, error) {
-	resp, err := c.HTTP.Get(url)
+func (c *HttpRestClient) Get(ctx context.Context, url string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	resp, err := c.HTTP.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error making request: %w", err)
 	}
@@ -48,8 +56,8 @@ func (c *HttpRestClient) Get(url string) ([]byte, error) {
 	return body, nil
 }
 
-func DoRequest[T any](client RestClient, url string) (*T, error) {
-	body, err := client.Get(url)
+func DoRequest[T any](ctx context.Context, client RestClient, url string) (*T, error) {
+	body, err := client.Get(ctx, url)
 	if err != nil {
 		return nil, err
 	}
