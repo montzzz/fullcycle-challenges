@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Port          string
 	WeatherAPIKey string
+	ZipkinURL     string
 }
 
 func Load() *Config {
@@ -17,6 +18,7 @@ func Load() *Config {
 	return &Config{
 		Port:          getEnv("PORT", "8080"),
 		WeatherAPIKey: getEnv("WEATHER_API_KEY", ""),
+		ZipkinURL:     getEnv("ZIPKIN_URL", "http://localhost:9411"),
 	}
 }
 

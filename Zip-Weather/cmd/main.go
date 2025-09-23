@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -8,11 +9,19 @@ import (
 	"github.com/montzzzzz/challenges/zip-weather/internal/handler"
 	restclient "github.com/montzzzzz/challenges/zip-weather/internal/rest_client"
 	"github.com/montzzzzz/challenges/zip-weather/internal/router"
+	"github.com/montzzzzz/challenges/zip-weather/internal/tracing"
 	"github.com/montzzzzz/challenges/zip-weather/internal/usecase"
 )
 
 func main() {
+	ctx := context.Background()
 	cfg := config.Load()
+
+	cleanup, err := tracing.Init("zip-weather", cfg.ZipkinURL)
+	if err != nil {
+		log.Fatalf("failed to init tracing: %v", err)
+	}
+	defer cleanup(ctx)
 
 	restClient := initRestClient()
 	viaCEPClient := initViaCEPClient(restClient)

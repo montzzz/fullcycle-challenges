@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:2.24
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  zip-weather:
+    build:
+      context: ../Zip-Weather
+      dockerfile: Dockerfile
+    container_name: zip-weather
+    environment:
+      - PORT=8081
+      - ZIPKIN_URL=http://zipkin:9411
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - zipkin
+
+  zip-weather-gateway:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: zip-weather-gateway
+    environment:
+      - PORT=8080
+      - ZIPKIN_URL=http://zipkin:9411
+      - ZIP_WEATHER_API_URL=http://zip-weather:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      - zip-weather
+      - zipkin
