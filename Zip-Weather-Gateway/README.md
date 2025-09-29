@@ -38,7 +38,9 @@ Este projeto também possui **tracing distribuído** implementado usando **OpenT
 }
 ```
 
-# Uso via Docker-Compose
+# Uso via Docker-Compose  
+
+> Lembrando que existe a dependência pro projeto `Zip-Weather`, ele deverá existir um nível acima deste projeto em questão, caso não queira rodar ele também localmente, deverá retirá-lo do arquivo `docker-compose.yml`
 
 É possível testar os dois serviços (zip-weather-gateway + zip-weather) junto com o Zipkin:  
   - Certifique-se de ter o Docker e Docker Compose instalados;
